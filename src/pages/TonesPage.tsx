@@ -22,6 +22,26 @@ export function TonesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [t.drill.id])
 
+  // Горячие клавиши: 1–4 — тон, Enter или пробел — следующий, R — прослушать.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement) return
+      if (t.result && (e.key === 'Enter' || e.code === 'Space')) {
+        e.preventDefault()
+        t.next()
+        return
+      }
+      if (!t.result && /^[1-4]$/.test(e.key)) {
+        t.answer(Number(e.key) as 1 | 2 | 3 | 4)
+        return
+      }
+      if (e.key === 'r' || e.key === 'к') play()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [t.result, t.answer, t.next, t.drill.id])
+
   const acc = t.total ? Math.round((t.correct / t.total) * 100) : 0
 
   return (
@@ -56,7 +76,7 @@ export function TonesPage() {
 
           <AnimatePresence mode="wait">
             {t.result ? (
-              <motion.div key={`r-${t.drill.id}`} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="mt-6 text-center">
+              <motion.div key={`r-${t.drill.id}`} role="status" aria-live="polite" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="mt-6 text-center">
                 <div className={cn('font-hanzi text-7xl font-medium', toneClass(t.drill.tone))}>{t.drill.hanzi ?? t.drill.syllable}</div>
                 <div className={cn('mt-2 text-3xl font-semibold', toneClass(t.drill.tone))}>{t.drill.syllable}</div>
                 <div className="mt-1 text-sm text-fg-muted">{t.drill.ru}</div>
@@ -98,6 +118,7 @@ export function TonesPage() {
                 >
                   <span className={cn('text-3xl font-bold leading-none', toneClass(x.tone))}>{x.contour}</span>
                   <span className="mt-2 text-sm font-semibold">{x.tone}-й</span>
+                  <kbd className="mt-1 hidden rounded border border-current/25 px-1 text-[10px] opacity-50 lg:inline">{x.tone}</kbd>
                   <span className="mt-0.5 hidden w-full truncate px-1 text-center text-[11px] text-fg-faint lg:block">{SHORT[x.tone]}</span>
                 </motion.button>
               )

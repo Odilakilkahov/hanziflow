@@ -71,12 +71,67 @@ body {
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+  /* Без задержки 300 мс на тап в мобильных браузерах. */
+  touch-action: manipulation;
 }
 
-input[type="range"] {
-  accent-color: var(--color-accent);
+button,
+a,
+[role="button"] {
+  -webkit-tap-highlight-color: rgba(229, 72, 77, 0.12);
+}
+
+/* Фокус только с клавиатуры (craft-details: focus-visible, не focus). */
+:where(button, a, input, select, textarea, [role="button"], [role="switch"], [tabindex]):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+/* Убираем стрелки у числовых полей: у них свои кнопки «−/+». */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Крестик браузера в поле поиска не нужен: есть своя кнопка. */
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
 }
 
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Длинные списки (словарь): браузер не раскладывает строки за экраном. */
+.row-lazy {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 64px;
+}
+
+/* Модальные слои не прокручивают страницу под собой. */
+.overscroll-lock {
+  overscroll-behavior: contain;
+}
+
+/* Пользователь попросил меньше движения: оставляем только мгновенные смены. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

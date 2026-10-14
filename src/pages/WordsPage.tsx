@@ -4,7 +4,7 @@ import { ChevronDown, Search } from 'lucide-react'
 import type { CardStatus } from '@/types'
 import { STATUS_TITLES, useWords } from '@/hooks'
 import { cn } from '@/lib/utils'
-import { Badge } from '@/ui'
+import { Badge, Input } from '@/ui'
 import { Chip } from '@/components/Chip'
 import { EmptyState } from '@/components/EmptyState'
 import { PageHeader } from '@/components/PageHeader'
@@ -26,15 +26,17 @@ export function WordsPage() {
     <div>
       <PageHeader hanzi="词" title="Словарь" subtitle={`${w.total} слов: HSK 1 и деловой пакет`} />
 
-      <div className="relative mb-3">
-        <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-fg-faint" />
-        <input
-          value={w.search}
-          onChange={(e) => w.setSearch(e.target.value)}
-          placeholder="Иероглиф, пиньинь (ni hao) или перевод"
-          className="h-12 w-full rounded-2xl border border-line bg-surface pl-12 pr-4 text-sm outline-none transition-colors placeholder:text-fg-faint focus:border-accent/60"
-        />
-      </div>
+      <Input
+        type="search"
+        size="lg"
+        value={w.search}
+        onChange={w.setSearch}
+        leading={<Search size={18} />}
+        clearable
+        aria-label="Поиск по словарю"
+        placeholder="Иероглиф, пиньинь (ni hao) или перевод…"
+        className="mb-3"
+      />
 
       <div className="mb-2 flex gap-2 overflow-x-auto pb-1">
         <Chip active={w.level === null} onClick={() => w.setLevel(null)}>Все уровни</Chip>
@@ -66,14 +68,16 @@ export function WordsPage() {
               return (
                 <motion.li
                   key={r.word.id}
+                  className={expanded ? undefined : 'row-lazy'}
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: Math.min(i, 12) * 0.03 }}
+                  transition={{ delay: Math.min(i, 12) * 0.03, duration: 0.2 }}
                 >
                   <button
                     type="button"
+                    aria-expanded={expanded}
                     onClick={() => setOpen(expanded ? null : r.word.id)}
-                    className={cn('flex w-full items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-surface-2', expanded && 'bg-surface-2')}
+                    className={cn('flex w-full items-center gap-4 px-4 py-3 text-left transition-colors duration-150 hover:bg-surface-2 focus-visible:-outline-offset-2', expanded && 'bg-surface-2')}
                   >
                     <span className="font-hanzi w-24 shrink-0 text-2xl font-medium">{r.word.hanzi}</span>
                     <div className="min-w-0 flex-1">

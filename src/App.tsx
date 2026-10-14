@@ -1,6 +1,11 @@
+import { MotionConfig } from 'framer-motion'
 import { Root } from '@/pages/Root'
 
-/** Точка входа. Вся композиция экранов живёт в src/pages (зона Codex). */
+/** Точка входа. reducedMotion="user": Framer Motion уважает системную настройку «меньше движения». */
 export default function App() {
-  return <Root />
+  return (
+    <MotionConfig reducedMotion="user">
+      <Root />
+    </MotionConfig>
+  )
 }

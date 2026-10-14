@@ -57,6 +57,27 @@ function Runner({ mode, level, onBack }: { mode: QuizMode; level: Level | null; 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q.question?.id])
 
+  // Горячие клавиши: 1–4 — вариант, Enter или пробел — дальше, R — прослушать ещё раз.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!q.question || q.finished) return
+      if (e.target instanceof HTMLInputElement) return
+      if (q.result && (e.key === 'Enter' || e.code === 'Space')) {
+        e.preventDefault()
+        q.next()
+        return
+      }
+      if (!q.result && /^[1-4]$/.test(e.key)) {
+        const opt = q.question.options[Number(e.key) - 1]
+        if (opt) q.answer(opt.id)
+        return
+      }
+      if ((e.key === 'r' || e.key === 'к') && q.question.speak) speak(q.question.speak)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [q, speak])
+
   if (q.finished) {
     const good = q.percent >= 80
     return (
@@ -119,7 +140,7 @@ function Runner({ mode, level, onBack }: { mode: QuizMode; level: Level | null; 
             </Card>
 
             <motion.div variants={stagger} initial="hidden" animate="visible" className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {question.options.map((o) => {
+              {question.options.map((o, i) => {
                 const chosen = q.result?.chosenId === o.id
                 const correct = o.id === question.correctId
                 const show = !!q.result
@@ -140,14 +161,17 @@ function Runner({ mode, level, onBack }: { mode: QuizMode; level: Level | null; 
                       show && !chosen && !correct && 'border-line opacity-50',
                     )}
                   >
-                    <div>
-                      <div className={cn('font-medium', (mode === 'hanzi' || mode === 'listening') && 'font-hanzi text-2xl')}>
-                        {mode === 'pinyin' ? <Pinyin text={o.label} className="text-lg" /> : o.label}
+                    <div className="flex min-w-0 items-center gap-3">
+                      <kbd className="hidden h-6 w-6 shrink-0 items-center justify-center rounded-md border border-line bg-surface-2 font-sans text-[11px] text-fg-faint md:inline-flex">{i + 1}</kbd>
+                      <div className="min-w-0">
+                        <div className={cn('font-medium', (mode === 'hanzi' || mode === 'listening') && 'font-hanzi text-2xl')}>
+                          {mode === 'pinyin' ? <Pinyin text={o.label} className="text-lg" /> : o.label}
+                        </div>
+                        {o.sub && (mode === 'hanzi' || mode === 'listening' ? <Pinyin text={o.sub} className="text-xs" /> : <div className="text-xs text-fg-muted">{o.sub}</div>)}
                       </div>
-                      {o.sub && (mode === 'hanzi' || mode === 'listening' ? <Pinyin text={o.sub} className="text-xs" /> : <div className="text-xs text-fg-muted">{o.sub}</div>)}
                     </div>
-                    {show && correct && <Check size={18} className="text-ok" />}
-                    {show && chosen && !correct && <X size={18} className="text-bad" />}
+                    {show && correct && <Check size={18} className="shrink-0 text-ok" />}
+                    {show && chosen && !correct && <X size={18} className="shrink-0 text-bad" />}
                   </motion.button>
                 )
               })}
@@ -155,13 +179,22 @@ function Runner({ mode, level, onBack }: { mode: QuizMode; level: Level | null; 
 
             <AnimatePresence>
               {q.result && (
-                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-4 flex items-center justify-between rounded-2xl border border-line bg-surface-2 p-4">
+                <motion.div
+                  role="status"
+                  aria-live="polite"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-4 flex flex-col gap-3 rounded-2xl border border-line bg-surface-2 p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
                   <div className="text-sm">
                     <span className={cn('font-semibold', q.result.correct ? 'text-ok' : 'text-bad')}>{q.result.correct ? 'Верно!' : 'Неверно.'}</span>{' '}
                     <span className="font-hanzi">{question.word.hanzi}</span> · <Pinyin text={question.word.pinyin} /> · <span className="text-fg-muted">{question.word.ru}</span>
                   </div>
-                  <Button onClick={q.next}>
+                  <Button onClick={q.next} className="shrink-0">
                     Дальше <ArrowRight size={16} />
+                    <kbd className="ml-1 hidden rounded border border-white/30 px-1 text-[10px] font-normal opacity-70 md:inline">↵</kbd>
                   </Button>
                 </motion.div>
               )}

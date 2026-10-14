@@ -48,11 +48,12 @@ export function Root() {
               <motion.button
                 key={it.view}
                 type="button"
+                aria-current={active ? 'page' : undefined}
                 onClick={() => setView(it.view)}
                 whileHover={{ x: 2 }}
                 whileTap={{ scale: 0.97 }}
                 className={cn(
-                  'relative flex h-10 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors duration-200',
+                  'relative flex h-10 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors duration-150',
                   active ? 'text-fg' : 'text-fg-muted hover:bg-white/5 hover:text-fg',
                 )}
               >
@@ -96,14 +97,24 @@ export function Root() {
               <motion.button
                 key={it.view}
                 type="button"
+                aria-current={active ? 'page' : undefined}
                 onClick={() => setView(it.view)}
                 whileTap={{ scale: 0.9 }}
                 className={cn(
-                  'flex min-w-0 flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors',
+                  'relative flex min-w-0 flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors duration-150 focus-visible:-outline-offset-2',
                   active ? 'text-accent' : 'text-fg-faint',
                 )}
               >
-                <Icon name={it.icon} size={20} />
+                {active && (
+                  <motion.span
+                    layoutId="tab-dot"
+                    className="absolute top-0 h-0.5 w-8 rounded-full bg-accent"
+                    transition={{ type: 'spring', stiffness: 500, damping: 36 }}
+                  />
+                )}
+                <motion.span animate={{ scale: active ? 1.1 : 1, y: active ? -1 : 0 }} transition={{ type: 'spring', stiffness: 500, damping: 30 }}>
+                  <Icon name={it.icon} size={20} />
+                </motion.span>
                 <span className="truncate">{it.title}</span>
               </motion.button>
             )

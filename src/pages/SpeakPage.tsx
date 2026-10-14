@@ -99,7 +99,7 @@ function Practice({ sentences, level }: { sentences: boolean; level: Level | nul
 
             <AnimatePresence>
               {p.attempt && (
-                <motion.div variants={pop} initial="hidden" animate="visible" exit={{ opacity: 0 }} className="mt-6 w-full rounded-2xl border border-line bg-surface-2 p-4 text-left">
+                <motion.div role="status" aria-live="polite" variants={pop} initial="hidden" animate="visible" exit={{ opacity: 0 }} className="mt-6 w-full rounded-2xl border border-line bg-surface-2 p-4 text-left">
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-fg-muted">Распознано</div>
                     <Badge tone={p.attempt.score >= 80 ? 'ok' : p.attempt.score >= 50 ? 'warn' : 'neutral'}>{p.attempt.score}%</Badge>
