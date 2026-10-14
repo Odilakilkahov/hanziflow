@@ -1,32 +1,49 @@
-# React + TypeScript + Vite
+# HanziFlow — китайский каждый день
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Персональный тренажёр китайского (путунхуа) для русскоязычного пользователя: HSK 1 (150 слов) + деловой пакет (30 слов), интервальные повторения, тоны, викторины, разговорная практика. Работает целиком в браузере, без серверов и ключей.
 
-Currently, two official plugins are available:
+## Запуск
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev        # http://localhost:5173
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Или двойной клик по `start.bat` — поднимет сервер и откроет браузер.
+
+Для озвучки и распознавания речи нужен Chrome или Edge (Web Speech API).
+
+## Что умеет
+
+| Экран | Что делает |
+|---|---|
+| Сегодня | Серия дней, XP и уровень, цель дня, неделя, прогресс по 14 темам |
+| Карточки | SM-2 (как в Anki): «Забыл / Трудно / Хорошо / Легко», переворот, пример, горячие клавиши пробел и 1–4 |
+| Викторина | 5 режимов: перевод, иероглиф, пиньинь, слушание, тоны |
+| Тоны | Тренажёр на слух + справочник инициалей и финалей с подсказками по-русски |
+| Речь | Повторяешь за эталоном, браузер распознаёт и оценивает по иероглифам |
+| Словарь | Поиск по иероглифу, пиньиню без тонов и переводу, фильтры по теме/уровню/статусу |
+| Настройки | Пиньинь на карточке, автоозвучка, скорость речи, цель дня, новых слов в день, сброс |
+
+Прогресс хранится в `localStorage` под ключом `hanziflow-progress`.
+
+## Архитектура
+
+- `src/types` — контракт данных.
+- `src/data` — словарь (`words.ts`), темы, пиньинь и тоны.
+- `src/lib` — SM-2 (`srs.ts`), разбор пиньиня (`pinyin.ts`), озвучка/распознавание (`speech.ts`), генератор викторин (`quiz.ts`), XP.
+- `src/store/useProgress.ts` — zustand + persist.
+- `src/hooks` — хуки экранов: `useDashboard`, `useReviewSession`, `useQuiz`, `useToneTrainer`, `useSpeakPractice`, `useWords`, `useSettings`, `useSpeech`, `useNavigation`.
+- `src/pages`, `src/components`, `src/ui` — интерфейс (React + Tailwind v4 + Framer Motion + Lucide).
+
+## Проверки
+
+```bash
+npx tsc -b        # типы
+npm test          # vitest: SM-2, пиньинь, викторина, сравнение речи
+npm run build     # production-сборка в dist/
+```
+
+## Референсы дизайна
+
+`D:\design-refs`: linear (тёмная тема, сетка, Inter), retool (спокойные тёмные карточки), resend (минимализм). Акцент — киноварь китайской печати, цвета тонов — схема Pleco.
